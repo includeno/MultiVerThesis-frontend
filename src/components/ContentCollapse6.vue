@@ -7,16 +7,17 @@
           :key="section.id"
           :header="section.title"
       >
+        section:{{section.content}}
         <!-- 工具栏：选择添加 paragraph 或添加 section -->
         <div class="toolbar">
+          <a-button @click="editItem(section.id)">编辑章节</a-button>
           <a-button @click="addParagraph(section.id)">添加段落</a-button>
           <a-button @click="addSection(section.id)">添加子章节</a-button>
         </div>
 
         <!-- 使用 Vue Draggable 实现拖拽排序 -->
-        <draggable v-model="section.contents" handle=".handle">
+        <draggable v-model="section.contents" handle=".handle" :group="{ name: section.id, pull: true, put: true }">
           <template #item="{element}">
-            {{ element.title }}
             <div class="bordered-card">
               <!-- 添加拖拽把手 -->
               <div class="handle">☰</div>
@@ -27,12 +28,12 @@
               </div>
 
               <!-- 内容展示 -->
-              <template v-if="element.content_type === 'text' && element.type==='section'">
+              <template v-if="element.type==='section' && element.content_type === 'text' ">
                 <ContentDisplay :sections="element.contents">
                 </ContentDisplay>
               </template>
-              <template v-if="element.content_type === 'text' && element.type==='paragraph'">
-                <p>{{ element.content }}</p>
+              <template v-else-if="element.type==='paragraph' && element.content_type === 'text' ">
+                <p>paragraph:{{ element.content }}</p>
               </template>
               <template v-else-if="element.content_type === 'formula'">
                 <p>公式：{{ element.content }}</p>
