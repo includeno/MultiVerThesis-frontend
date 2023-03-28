@@ -29,9 +29,14 @@ antd
 
 https://antdv.com/components/overview 3.2.16
 
-yarn add vuedraggable@next
+vuedraggable
 
+yarn add vuedraggable@next
 https://www.npmjs.com/package/vuedraggable
+
+vue router
+
+yarn add vue-router@4
 
 // 后台专用
 https://github.com/vueComponent/ant-design-vue-pro 

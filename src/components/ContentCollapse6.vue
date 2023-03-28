@@ -1,46 +1,46 @@
 <template>
   <div>
-    <!-- 项目选择组件 -->
-    <div class="project-select">
-      <ProjectSelect @project-change="handleProjectChange" />
-    </div>
-
     <!-- 折叠面板展示 section 和 paragraph 列表 -->
     <a-collapse>
       <a-collapse-panel
           v-for="section in sections"
-          :key="section.key"
+          :key="section.id"
           :header="section.title"
       >
         <!-- 工具栏：选择添加 paragraph 或添加 section -->
         <div class="toolbar">
-          <a-button @click="addParagraph(section.key)">添加段落</a-button>
-          <a-button @click="addSection(section.key)">添加子章节</a-button>
+          <a-button @click="addParagraph(section.id)">添加段落</a-button>
+          <a-button @click="addSection(section.id)">添加子章节</a-button>
         </div>
 
         <!-- 使用 Vue Draggable 实现拖拽排序 -->
-        <draggable v-model="section.children" handle=".handle">
+        <draggable v-model="section.contents" handle=".handle">
           <template #item="{element}">
+            {{ element.title }}
             <div class="bordered-card">
               <!-- 添加拖拽把手 -->
               <div class="handle">☰</div>
 
               <!-- 编辑按钮 -->
               <div class="card-extra">
-                <a-button @click="editItem(element.key)">编辑</a-button>
+                <a-button @click="editItem(element.id)">编辑</a-button>
               </div>
 
               <!-- 内容展示 -->
-              <template v-if="element.type === 'text'">
+              <template v-if="element.content_type === 'text' && element.type==='section'">
+                <ContentDisplay :sections="element.contents">
+                </ContentDisplay>
+              </template>
+              <template v-if="element.content_type === 'text' && element.type==='paragraph'">
                 <p>{{ element.content }}</p>
               </template>
-              <template v-else-if="element.type === 'formula'">
+              <template v-else-if="element.content_type === 'formula'">
                 <p>公式：{{ element.content }}</p>
               </template>
-              <template v-else-if="element.type === 'image'">
+              <template v-else-if="element.content_type === 'image'">
                 <img :src="element.content" alt="图片" />
               </template>
-              <template v-else-if="element.type === 'table'">
+              <template v-else-if="element.content_type === 'table'">
                 <p>表格：{{ element.content }}</p>
               </template>
             </div>
@@ -53,46 +53,24 @@
 
 <script>
 import draggable from 'vuedraggable';
-import ProjectSelect from './ProjectSelect.vue'
 
 export default {
   name: 'ContentDisplay',
   components: {
-    ProjectSelect,draggable
+    draggable,
+    'ContentDisplay': () => import('./ContentCollapse6.vue') // Recursive component
   },
-  data() {
-    return {
-      sections: [] // 存储 section 数据
+  props: {
+    sections: {
+      type: Array,
+      default: () => []
     }
   },
   mounted() {
-    this.sections=this.fetchSectionsAndParagraphs();
+    console.log("sections:")
+    console.log(this.sections)
   },
   methods: {
-    handleProjectChange() {
-      // 根据选中的项目ID获取对应的 section 和 paragraph 数据
-      this.sections = this.fetchSectionsAndParagraphs()
-    },
-    fetchSectionsAndParagraphs() {
-      // 此处模拟数据，实际应从后端接口获取
-      return [
-        {
-          key: 'section-1',
-          title: '章节1',
-          children: [
-            {key: 'text-1', type: 'text', content: '纯文本内容'},
-            {key: 'formula-1', type: 'formula', content: 'x^2 + y^2 = 1'},
-            {key: 'image-1', type: 'image', content: 'https://example.com/image.jpg'},
-            {key: 'table-1', type: 'table', content: '示例表格'}
-          ]
-        },
-        {
-          key: 'section-2',
-          title: '章节2',
-          children: []
-        }
-      ]
-    },
     addParagraph(item) {
       // 添加段落的逻辑
       console.log('添加段落到章节', item)
