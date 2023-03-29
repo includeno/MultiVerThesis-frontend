@@ -41,6 +41,11 @@ const routes = [
         name: "NavigationTreeView",
         component: () => import("@/views/content/NavigationTreeView.vue"),
     },
+    {
+        path: "/CompletedView",
+        name: "CompletedView",
+        component: () => import("@/views/content/CompletedViewV1.vue"),
+    },
 ]
 
 const router = createRouter({

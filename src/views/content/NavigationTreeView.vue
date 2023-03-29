@@ -27,6 +27,7 @@ export default {
           title: 'Chapter 1',
           type: 'section',
           id: 1,
+          isLeaf: false,
           contents: [
             {
               title: 'Section 1.1',
