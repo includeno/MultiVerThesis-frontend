@@ -51,6 +51,12 @@ const routes = [
         name: "ParentComponent",
         component: () => import("@/views/content/ParentComponent.vue"),
     },
+    {
+        path: "/ContentDisplayView",
+        name: "ContentDisplayView",
+        component: () => import("@/views/content/ContentDisplayView.vue"),
+    },
+
 
 ]
 
