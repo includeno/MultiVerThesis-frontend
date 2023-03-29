@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import ContentDisplay from '@/components/ContentCollapse6.vue'; // 根据实际路径导入ContentDisplay组件
+import ContentDisplay from '@/components/ContentCollapse7.vue'; // 根据实际路径导入ContentDisplay组件
 
 export default {
   name: 'ContentView',

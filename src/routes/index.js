@@ -32,9 +32,14 @@ const routes = [
         component: () => import("@/views/content/ContentV4.vue"),
     },
     {
-        path: "/ContentCollapse6View",
-        name: "ContentCollapse6View",
-        component: () => import("@/views/content/ContentCollapse6View.vue"),
+        path: "/ContentCollapseView",
+        name: "ContentCollapseView",
+        component: () => import("@/views/content/ContentCollapseView.vue"),
+    },
+    {
+        path: "/NavigationTreeView",
+        name: "NavigationTreeView",
+        component: () => import("@/views/content/NavigationTreeView.vue"),
     },
 ]
 
