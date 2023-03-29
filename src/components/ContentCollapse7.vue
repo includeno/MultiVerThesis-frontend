@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-collapse>
+    <a-collapse v-model:activeKey="currentActiveKeys">
       <a-collapse-panel
           v-for="section in sections"
           :key="section.id"
@@ -25,7 +25,7 @@
 
               <template v-if="element.type === 'section'">
                 <!-- 递归渲染子章节 -->
-                <ContentDisplay :sections="[element]" />
+                <ContentDisplay :sections="[element]" :activeKeys="syncedActiveKeys"/>
               </template>
               <template v-else>
                 <!-- 根据内容类型展示不同内容，这里以文本、公式和表格为例 -->
@@ -35,7 +35,6 @@
               </template>
             </div>
           </template>
-
 
         </draggable>
       </a-collapse-panel>
@@ -56,8 +55,18 @@ export default {
     sections: {
       type: Array,
       default: () => []
+    },
+    activeKeys: {
+      type: Array,
+      default: () => []
     }
   },
+  data() {
+    return {
+      currentActiveKeys: this.activeKeys,
+    };
+  },
+
   mounted() {
     console.log("sections:")
     console.log(this.sections)
@@ -75,7 +84,40 @@ export default {
       // 编辑内容项的逻辑
       console.log('编辑内容项', item)
     }
-  }
+  },
+  computed: {
+    syncedActiveKeys: {
+      get() {
+        // 获取父组件传入的activeKeys
+        return this.activeKeys;
+      },
+      set(value) {
+        //console.log("syncedActiveKeys set"+value);
+        // 当子组件的activeKeys发生变化时，通过$emit事件通知父组件
+        // 使用Set去重，合并父组件的activeKeys和子组件的新值
+        const updatedActiveKeys = [...new Set([...this.activeKeys, ...value])];
+        this.$emit('update:activeKeys', updatedActiveKeys);
+      }
+    }
+  },
+  watch: {
+    activeKeys(newActiveKeys) {
+      console.log(newActiveKeys);
+      this.currentActiveKeys = newActiveKeys;
+      console.log("activeKeys updatedActiveKeys: "+newActiveKeys)
+      this.$emit('update:activeKeys', newActiveKeys);
+    },
+    currentActiveKeys(newActiveKeys){
+      console.log("===============");
+      console.log(newActiveKeys);
+      console.log(this.activeKeys);
+      console.log(this.currentActiveKeys);
+      console.log("===============");
+      const updatedActiveKeys = [...new Set([ ...newActiveKeys])];
+      console.log("currentActiveKeys  updatedActiveKeys :" + updatedActiveKeys);
+      this.$emit('update:activeKeys', updatedActiveKeys);
+    },
+  },
 
 }
 </script>

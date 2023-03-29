@@ -1,7 +1,7 @@
 <template>
   <div>
     <button @click="openPath(['1','2','4'])">Open Chapter 1 > Section 1.1</button>
-    <ContentDisplay ref="contentDisplay" :sections="sections" :activeKeys="syncedActiveKeys" />
+    <ContentDisplay ref="contentDisplay" :sections="sections" v-model:activeKeys="syncedActiveKeys" />
   </div>
 </template>
 
@@ -57,8 +57,9 @@ export default {
         //console.log("syncedActiveKeys set"+value);
         // 当子组件的activeKeys发生变化时，通过$emit事件通知父组件
         // 使用Set去重，合并父组件的activeKeys和子组件的新值
-        console.log("set value")
+        console.log("set value"+value)
         this.activeKeys=value;
+        console.log("this.activeKeys :"+this.activeKeys )
       }
     }
   },

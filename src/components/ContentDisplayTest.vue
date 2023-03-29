@@ -37,7 +37,7 @@ export default {
         // 当子组件的activeKeys发生变化时，通过$emit事件通知父组件
         // 使用Set去重，合并父组件的activeKeys和子组件的新值
         const updatedActiveKeys = [...new Set([...this.activeKeys, ...value])];
-        this.$emit('update:activeKeys', updatedActiveKeys);
+        this.$emit('update:syncedActiveKeys', updatedActiveKeys);
       }
     }
   },
@@ -58,7 +58,7 @@ export default {
       console.log(this.activeKeys);
       console.log(this.currentActiveKeys);
       console.log("===============");
-      const updatedActiveKeys = [...new Set([...this.activeKeys, ...this.currentActiveKeys])];
+      const updatedActiveKeys = [...new Set([ ...newActiveKeys])];
       console.log("currentActiveKeys  updatedActiveKeys :" + updatedActiveKeys);
       this.$emit('update:activeKeys', updatedActiveKeys);
     },
