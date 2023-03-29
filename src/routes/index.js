@@ -46,6 +46,12 @@ const routes = [
         name: "CompletedView",
         component: () => import("@/views/content/CompletedViewV1.vue"),
     },
+    {
+        path: "/ParentComponent",
+        name: "ParentComponent",
+        component: () => import("@/views/content/ParentComponent.vue"),
+    },
+
 ]
 
 const router = createRouter({
