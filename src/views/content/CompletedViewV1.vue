@@ -22,7 +22,9 @@ export default {
     ContentDisplay
   },
   mounted() {
-    this.addIsLeafField(this.data0)
+    this.addIsLeafField(this.data0);
+    console.log("data0:")
+    console.log(this.data0)
   },
   data() {
     return {
@@ -49,14 +51,22 @@ export default {
     onSelect(selectedKeys, {selectedNodes}) {
       // 实现导航栏选中事件的处理逻辑，例如快速定位
       // selectedKeys为选中节点的key，selectedNodes为选中节点信息
-      console.log(selectedKeys, selectedNodes);
+      if (selectedKeys.length > 0) {
+        const targetId = selectedNodes[0].id; // 获取选中节点的ID
+        console.log("targetId:"+targetId)
+        const targetElement = document.getElementById(targetId);
+        console.log("targetElement:"+JSON.stringify(targetElement))
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth' }); // 平滑滚动到目标元素
+        }
+      }
     },
     addIsLeafField(data) {
       if (Array.isArray(data)) {
         data.forEach(item => this.addIsLeafField(item));
       } else if (typeof data === 'object' && data !== null) {
         // 根据type属性值设置isleaf字段
-        data.isleaf = data.type === 'section' ? false : true;
+        data.isLeaf = data.type === 'section' ? false : true;
         // 如果存在contents字段，则递归处理contents字段
         if (Array.isArray(data.contents)) {
           this.addIsLeafField(data.contents);
