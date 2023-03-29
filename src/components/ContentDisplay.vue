@@ -1,14 +1,16 @@
 <template>
   <div>
-    <a-collapse v-model="activePanelKeys" @change="handleCollapseChange">
+    <a-collapse v-model:active-key="currentActiveKeys" @change="handleCollapseChange">
       <a-collapse-panel
           v-for="item in contents"
           :key="item.id"
           :header="item.title"
+          :force-render="true"
       >
         <div v-if="item.type === 'section'">
           <!-- 递归渲染子内容 -->
-          <ContentDisplay :contents="item.contents" :data="data" @update-collapse="$emit('update-collapse', $event)"/>
+          <ContentDisplay :contents="item.contents" :data="data" :activePanelKeys="currentActiveKeys"
+                          @update-collapse="$emit('update-collapse', $event)"/>
         </div>
         <!-- 展示内容 -->
         <div v-else-if="item.content_type === 'text'">{{ item.content }}</div>
@@ -35,23 +37,27 @@ export default {
     contents: {
       type: Array,
       default: () => []
-    }
+    },
+    activePanelKeys: {
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
-      activePanelKeys: [] // 当前激活的面板项的key值
+      currentActiveKeys: this.activePanelKeys,
     };
   },
   watch: {
     // 监听父组件传入的contents数据变化，并更新activePanelKeys
     contents: {
       deep: true,
-      immediate: true,
-      handler(contents) {
-        // 收集所有默认展开的面板项的key值
-        this.activePanelKeys = this.getOpenKeys(contents);
-      }
-    }
+      immediate: true
+    },
+    activePanelKeys(newActiveKeys) {
+      // 同步父组件传递的 activePanelKeys
+      this.currentActiveKeys = newActiveKeys;
+    },
   },
   methods: {
     // 获取默认展开的面板项的key值
@@ -67,38 +73,25 @@ export default {
       });
       return openKeys;
     },
-    handleCollapseChange(activeKeys) {
-      // 更新激活的面板key值
-      this.activePanelKeys = activeKeys;
-      console.log("handleCollapseChange type: "+typeof activeKeys);
-      console.log("handleCollapseChange: "+activeKeys);
-      // 更新原始数据的isCollapsed字段
-      //this.updateIsCollapsed(this.data, activeKeys);
-
+    async handleCollapseChange(activeKeys) {
+      this.currentActiveKeys = activeKeys;
       // 遍历contents中的每一项，并设置isCollapsed字段
-      this.contents.forEach(item => {
-        const isCollapsed = !activeKeys.includes(String(item.id));
-        console.log("activeKeys:"+activeKeys+" item.id:"+item.id);
+      await this.contents.forEach(item => {
+        let isCollapsed = !activeKeys.includes(String(item.id));
+        if (isCollapsed == null) {
+          isCollapsed = false;
+        }
+        console.log("activeKeys:" + activeKeys + " item.id:" + item.id);
         item.isCollapsed = isCollapsed;
-        console.log("forEach id:"+item.id+" "+isCollapsed);
+        console.log("forEach id:" + item.id + " " + isCollapsed);
         // 发送自定义事件，通知父组件更新contents数据的isCollapsed字段
-        this.$emit('update-collapse', item.id, isCollapsed);
+        this.$emit('update-collapse', item.id,isCollapsed);
+        //this.$emit('update-collapse', {id:item.id, isCollapsed:isCollapsed});
       });
+      this.$emit('update-collapse-keys', {});
     },
-    // updateIsCollapsed(data, activeKeys) {
-    //   data.forEach(item => {
-    //     if (item.type === 'section') {
-    //       // 如果item的id不在activeKeys中，则设置isCollapsed为true，否则设置为false
-    //       item.isCollapsed = !activeKeys.includes(item.id);
-    //     }
-    //     // 如果存在子内容，则递归处理子内容
-    //     if (item.contents) {
-    //       this.updateIsCollapsed(item.contents, activeKeys);
-    //     }
-    //   });
-    // },
 
-  }
+  },
 }
 </script>
 

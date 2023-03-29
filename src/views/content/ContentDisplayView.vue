@@ -1,18 +1,25 @@
 <template>
   <div class="main-view">
-    <h1>论文内容展示</h1>
+    <div class="navigation">
+      <!-- 树形导航组件 -->
+      <navigation-tree
+          :data0="contents"
+          @update-select="onSelect"
+      />
+    </div>
     <!-- 使用ContentDisplay组件展示数据 -->
-    <ContentDisplay :contents="contents" :data="contents" @update-collapse="setCollapseStatus" />
+    <ContentDisplay :contents="contents" :data="contents" :activePanelKeys="activePanelKeys" @update-collapse="setCollapseStatus" @update-collapse-keys="updateActivePanelKeys" />
   </div>
 </template>
 
 <script>
+import NavigationTree from '@/components/NavigationTree2.vue';
 import ContentDisplay from '@/components/ContentDisplay.vue';
 
 export default {
   name: 'ContentDisplayView',
   components: {
-    ContentDisplay
+    NavigationTree,ContentDisplay
   },
   data() {
     return {
@@ -193,18 +200,27 @@ export default {
           ],
           "isCollapsed": true
         }
-      ]
+      ],
+      activePanelKeys: [], // 用于存放展开状态的面板项的key值
     };
   },
   mounted() {
     this.addIsCollapsedProperty(this.contents,true);
+    // 获取展开状态的面板项的key值
+    this.activePanelKeys = this.getActivePanelKeysFromData(this.contents);
   },
   methods:{
-    // 监听update-collapse事件的处理函数
-    handleUpdateCollapse(updatedContents) {
-      // 使用更新后的数据替换原contents数据
-      this.contents = updatedContents;
-      console.log("handleUpdateCollapse contents new : "+updatedContents);
+    onSelect(selectedNodes) {
+      // 实现导航栏选中事件的处理逻辑，例如快速定位
+      // selectedKeys为选中节点的key，selectedNodes为选中节点信息
+      if (selectedNodes.length > 0) {
+        const targetId = selectedNodes[0].id; // 获取选中节点的ID
+        this.setCollapseStatus(targetId, false);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
     },
     addIsCollapsedProperty(data, isCollapsed) {
       // 遍历数据中的每个元素
@@ -221,10 +237,15 @@ export default {
     },
     // 设置折叠状态的函数
     setCollapseStatus(id, isCollapsed) {
+      console.log("setCollapseStatus:");
+      console.log(id);
+      console.log(isCollapsed);
       const updateStatus = (data, id, isCollapsed) => {
         for (let i in data) {
           let item=data[i];
-          console.log(item);
+          if(item.type=='paragraph'){
+            continue;
+          }
           if (item.id === id) {
             item.isCollapsed = isCollapsed;
             console.log("setCollapseStatus update id"+id+"=>"+isCollapsed);
@@ -236,7 +257,31 @@ export default {
         }
         return false;
       };
+      if (typeof isCollapsed === 'undefined') {
+        // 变量是undefined
+        isCollapsed=true;
+      }
       updateStatus(this.contents, id, isCollapsed);
+    },
+    getActivePanelKeysFromData(data) {
+      const result = [];
+      for (const item of data) {
+        if (item.type === 'section' && !item.isCollapsed) {
+          // 如果节点是展开状态的section，将id添加到结果数组中
+          result.push(item.id);
+        }
+        if (item.contents) {
+          // 如果有子节点，递归处理子节点
+          result.push(...this.getActivePanelKeysFromData(item.contents));
+        }
+      }
+      return result;
+    },
+    updateActivePanelKeys(){
+      let before=this.activePanelKeys;
+      this.activePanelKeys = this.getActivePanelKeysFromData(this.contents);
+      console.log("before:"+before);
+      console.log("this.activePanelKeys:"+this.activePanelKeys);
     }
   },
   watch:{
@@ -249,12 +294,15 @@ export default {
 </script>
 
 <style scoped>
-.main-view {
-  padding: 20px;
+.container {
+  display: flex;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
+.navigation {
+  width: 250px;
+}
+
+.content {
+  flex: 1;
 }
 </style>
