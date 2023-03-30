@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-const routes = [
+let routes = [
     {
         path: "/ContentCollapse5",
         name: "ContentCollapse5",
@@ -56,8 +56,28 @@ const routes = [
         name: "ContentDisplayView",
         component: () => import("@/views/content/ContentDisplayView.vue"),
     },
-
-
+    {
+        path: "/Demo",
+        name: "Demo",
+        component: () => import("@/views/demo/DemoDisplay1.vue"),
+    },
+    //CollapseExpendDemo.vue
+    {
+        path: "/CollapseExpendDemo",
+        name: "CollapseExpendDemo",
+        component: () => import("@/views/demo/CollapseExpendDemo.vue"),//✅正常工作
+    },
+    //CollapseExpendDemoV2.vue
+    {
+        path: "/CollapseExpendDemoV2",
+        name: "CollapseExpendDemoV2",
+        component: () => import("@/views/demo/CollapseExpendDemoV2.vue"),
+    },
+    {
+        path: "/CollapseExpendDemoV3",
+        name: "CollapseExpendDemoV3",
+        component: () => import("@/views/demo/CollapseExpendDemoV3.vue"),//✅正常工作
+    },
 ]
 
 const router = createRouter({
