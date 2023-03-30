@@ -78,6 +78,11 @@ let routes = [
         name: "CollapseExpendDemoV3",
         component: () => import("@/views/demo/CollapseExpendDemoV3.vue"),//✅正常工作
     },
+    {
+        path: "/CollapseExpendDemoV4",
+        name: "CollapseExpendDemoV4",
+        component: () => import("@/views/demo/CollapseExpendDemoV4.vue"),//✅正常工作
+    },
 ]
 
 const router = createRouter({

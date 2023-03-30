@@ -40,6 +40,10 @@ vue router
 
 yarn add vue-router@4
 
+axios
+
+yarn add axios
+
 // 后台专用
 https://github.com/vueComponent/ant-design-vue-pro 
 ```
