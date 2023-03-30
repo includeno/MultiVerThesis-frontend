@@ -9,8 +9,20 @@
       >
 
         <div>
-          <a-button @click="addParagraph(section)">添加段落</a-button>
-          <a-button @click="addSection(section)">添加子章节</a-button>
+          <a-button @click="addParagraph(section)">添加段落Paragraph</a-button>
+          <InputParagraphDialog
+              :show-dialog="showParagraphInputDialog"
+              @submit-paragraph-input="handleParagraphInputSubmit"
+              @close-paragraph-dialog="closeParagraphInputDialog"
+          >
+          </InputParagraphDialog>
+
+          <a-button @click="addSection(section)">添加子章节Section</a-button>
+          <InputSectionDialog
+              :show-dialog="showSectionInputDialog"
+              @submit-section-input="handleSectionInputSubmit"
+              @close-section-dialog="closeSectionInputDialog"
+          ></InputSectionDialog>
           <a-button @click="editItem(section)">编辑</a-button>
         </div>
         <draggable v-model="section.contents" :group="{ name: 'nested' }" itemKey="id">
@@ -46,11 +58,15 @@
 <script>
 import draggable from 'vuedraggable';
 import {defineAsyncComponent} from 'vue'
+import InputSectionDialog from '@/components/InputSectionDialog'
+import InputParagraphDialog from "@/components/InputParagraphDialog";
 
 export default {
   name: 'ContentCollapse',
   components: {
+    InputParagraphDialog,
     draggable,
+    InputSectionDialog,
     'ContentDisplay': defineAsyncComponent(() => import('./ContentCollapse8.vue')) // Recursive component
   },
   props: {
@@ -66,25 +82,48 @@ export default {
   data() {
     return {
       currentActiveKeys: this.activeKeys,
+      showSectionInputDialog: false,
+      showParagraphInputDialog: false,
     };
   },
 
   mounted() {
-    console.log("sections:")
-    // console.log(this.sections)
+
   },
   methods: {
     addParagraph(item) {
       // 添加段落的逻辑
-      console.log('添加段落到章节', item)
+      console.log('添加段落到章节', item);
+      this.showParagraphInputDialog = true;
     },
     addSection(item) {
       // 添加子章节的逻辑
       console.log('添加子章节到章节', item)
+      this.showSectionInputDialog = true;
     },
     editItem(item) {
       // 编辑内容项的逻辑
       console.log('编辑内容项', item)
+    },
+    handleSectionInputSubmit(data) {
+      // 处理提交的数据
+      console.log("receive data:")
+      console.log(data);
+      // 关闭模态对话框
+      this.showSectionInputDialog = false;
+    },
+    closeSectionInputDialog() {
+      this.showSectionInputDialog = false;
+    },
+    handleParagraphInputSubmit(data) {
+      // 处理提交的数据
+      console.log("receive data:")
+      console.log(data);
+      // 关闭模态对话框
+      this.showParagraphInputDialog = false;
+    },
+    closeParagraphInputDialog(){
+      this.showParagraphInputDialog = false;
     }
   },
   computed: {
@@ -106,10 +145,10 @@ export default {
     activeKeys(newActiveKeys) {
       console.log(newActiveKeys);
       this.currentActiveKeys = this.activeKeys;
-      console.log("activeKeys updatedActiveKeys: "+newActiveKeys)
+      console.log("activeKeys updatedActiveKeys: " + newActiveKeys)
       this.$emit('update:activeKeys', newActiveKeys);
     },
-    currentActiveKeys:{
+    currentActiveKeys: {
       get() {
         // 获取父组件传入的activeKeys
         return this.activeKeys;
@@ -117,7 +156,7 @@ export default {
       set(newActiveKeys) {
         // 当子组件的activeKeys发生变化时，通过$emit事件通知父组件
         // 使用Set去重，合并父组件的activeKeys和子组件的新值
-        const updatedActiveKeys = [...new Set([ ...newActiveKeys])];
+        const updatedActiveKeys = [...new Set([...newActiveKeys])];
         console.log("currentActiveKeys  updatedActiveKeys :" + updatedActiveKeys);
         this.$emit('update:activeKeys', updatedActiveKeys);
       }
