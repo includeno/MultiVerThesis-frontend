@@ -1,18 +1,19 @@
 <template>
   <div>
-    <a-collapse v-model:activeKey="currentActiveKeys_1">
+    <a-collapse v-model:activeKey="currentActiveKeys">
       <a-collapse-panel
           v-for="section in sections"
           :key="section.id"
           :header="section.title"
           :id="section.id"
       >
+
         <div>
           <a-button @click="addParagraph(section)">添加段落</a-button>
           <a-button @click="addSection(section)">添加子章节</a-button>
           <a-button @click="editItem(section)">编辑</a-button>
         </div>
-        <draggable v-model="section.contents" :group="{ name: 'nested' }">
+        <draggable v-model="section.contents" :group="{ name: 'nested' }" itemKey="id">
           <template #item="{element}">
             <div class="bordered-card">
               <!-- 添加拖拽把手 -->
@@ -44,12 +45,13 @@
 
 <script>
 import draggable from 'vuedraggable';
+import {defineAsyncComponent} from 'vue'
 
 export default {
   name: 'ContentCollapse',
   components: {
     draggable,
-    'ContentDisplay': () => import('./ContentCollapse8.vue') // Recursive component
+    'ContentDisplay': defineAsyncComponent(() => import('./ContentCollapse8.vue')) // Recursive component
   },
   props: {
     sections: {
@@ -63,7 +65,7 @@ export default {
   },
   data() {
     return {
-      currentActiveKeys_1: this.activeKeys,
+      currentActiveKeys: this.activeKeys,
     };
   },
 
@@ -92,12 +94,20 @@ export default {
         return this.activeKeys;
       },
       set(value) {
-        //console.log("syncedActiveKeys set"+value);
         // 当子组件的activeKeys发生变化时，通过$emit事件通知父组件
         // 使用Set去重，合并父组件的activeKeys和子组件的新值
         const updatedActiveKeys = [...new Set([...this.activeKeys, ...value])];
         this.$emit('update:activeKeys', updatedActiveKeys);
       }
+    },
+
+  },
+  watch: {
+    activeKeys(newActiveKeys) {
+      console.log(newActiveKeys);
+      this.currentActiveKeys = this.activeKeys;
+      console.log("activeKeys updatedActiveKeys: "+newActiveKeys)
+      this.$emit('update:activeKeys', newActiveKeys);
     },
     currentActiveKeys:{
       get() {
@@ -105,21 +115,12 @@ export default {
         return this.activeKeys;
       },
       set(newActiveKeys) {
-        //console.log("syncedActiveKeys set"+value);
         // 当子组件的activeKeys发生变化时，通过$emit事件通知父组件
         // 使用Set去重，合并父组件的activeKeys和子组件的新值
         const updatedActiveKeys = [...new Set([ ...newActiveKeys])];
         console.log("currentActiveKeys  updatedActiveKeys :" + updatedActiveKeys);
         this.$emit('update:activeKeys', updatedActiveKeys);
       }
-    },
-  },
-  watch: {
-    activeKeys(newActiveKeys) {
-      console.log(newActiveKeys);
-      this.currentActiveKeys = newActiveKeys;
-      console.log("activeKeys updatedActiveKeys: "+newActiveKeys)
-      this.$emit('update:activeKeys', newActiveKeys);
     },
   },
 

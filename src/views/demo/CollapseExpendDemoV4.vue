@@ -6,7 +6,7 @@
     </div>
     <!-- 右侧折叠面板内容区 -->
     <div class="content">
-      <ContentCollapse :active-keys="activeKey" :sections="data"></ContentCollapse>
+      <ContentCollapse :active-keys="activeKeys" :sections="data"></ContentCollapse>
     </div>
   </div>
 </template>
@@ -20,10 +20,10 @@ export default {
   components: {ContentCollapse, NavigationTree},
   data() {
     return {
-      activeKey: [], // 响应式数据，存储展开的 Panel 的 ID
+      activeKeys: [], // 响应式数据，存储展开的 Panel 的 ID
       data: [],
-      index:1,
-      message:'',
+      index: 1,
+      message: '',
     }
   },
   mounted() {
@@ -47,20 +47,36 @@ export default {
       console.log('change:', key)
     },
     expandAndScrollTo(id) {
-      if(typeof id ==='undefined'){
-        id=this.message;
+      if (typeof id === 'undefined') {
+        this.activeKeys = []
+        return
       }
+      let nextKeys = []
       // 获取所有父级面板的 ID
-      const parentKeys = this.getAllParentKeys(id, this.data);
+      const paths = this.traverseTree(this.data);
+      for (let path of paths) {
+        if (path.key == id) {
+          nextKeys = path.path;
+          break;
+        }
+      }
+      console.log("CollapseExpendDemoV4.vue nextKeys:" + nextKeys);
       // 更新 activeKey，以展开指定的面板以及所有父级面板
-      this.activeKey = parentKeys.concat(id);
-      console.log("this.activeKey:"+this.activeKey);
+      this.activeKeys = nextKeys;
+      console.log("CollapseExpendDemoV4.vue activeKey:" + this.activeKeys);
+      for (let key of nextKeys) {
+        this.$nextTick( () => {
+          const el = document.getElementById(key);
+          console.log("$nextTick key" + key);
+          console.log("$nextTick el" + el);
+          if (el) {
+            el.scrollIntoView({behavior: 'auto'});
+          }
+        })
+      }
       // 滚动到指定的面板位置
       this.$nextTick(() => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth' });
-        }
+
       });
 
     },
@@ -84,24 +100,42 @@ export default {
       return data;
     },
 
-    // 获取指定 ID 的所有父级面板的 ID
-    getAllParentKeys(id, data, parentKeys = []) {
-      for (const i in data) {
-        let item=data[i];
-        if (item.id === id) {
-          return parentKeys;
-        }
-        if (item.contents && item.contents.length > 0) {
-          const keys = this.getAllParentKeys(id, item.contents, parentKeys.concat(item.id));
-          if (keys) {
-            return keys;
-          }
-        }
+    traverseTree(data) {
+      const path = [];
+      const result = [];
+      for (let i in data) {
+        const root = data[i];
+        //console.log("root:" + root.id)
+        this.dfs(root, root.contents, path, result);
       }
-      return [];
+      return result;
     },
 
-  },
+    dfs(node, data, path, result) {
+      if (!node) return;
+
+      // 将当前节点的id添加到路径中
+      path.push(node.id);
+
+      // 将当前节点的id（key）和路径添加到结果集
+      result.push({key: node.id, path: [...path]});
+      //console.log("result:" + JSON.stringify(result))
+
+      // 判断当前节点是否有子节点
+      if (node.contents && node.contents.length > 0) {
+        // 遍历子节点
+        for (const child of node.contents) {
+          // 找到子节点对应的对象
+          const childNode = data.find(item => item.id === child.id);
+          // 递归处理子节点
+          this.dfs(childNode, childNode.contents, path, result);
+        }
+      }
+      // 回溯：移除最后添加的节点的id，回退到上一个节点
+      path.pop();
+    }
+  }
+  ,
 }
 </script>
 
