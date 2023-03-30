@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-collapse v-model:active-key="currentActiveKeys" @change="handleCollapseChange">
+    <a-collapse v-model:activeKey="dcurrentActivePanelKeys" @change="handleCollapseChange">
       <a-collapse-panel
           v-for="item in contents"
           :key="item.id"
@@ -9,7 +9,7 @@
       >
         <div v-if="item.type === 'section'">
           <!-- 递归渲染子内容 -->
-          <ContentDisplay :contents="item.contents" :data="data" :activePanelKeys="currentActiveKeys"
+          <ContentDisplay :contents="item.contents" :data="data" :activePanelKeys="dcurrentActivePanelKeys"
                           @update-collapse="$emit('update-collapse', $event)"/>
         </div>
         <!-- 展示内容 -->
@@ -54,11 +54,19 @@ export default {
       deep: true,
       immediate: true
     },
-    activePanelKeys(newActiveKeys) {
-      // 同步父组件传递的 activePanelKeys
-      this.currentActiveKeys = newActiveKeys;
+    // 监听activePanelKeys属性的变化
+    activePanelKeys: {
+      get() {
+        return this.activePanelKeys;
+      },
+      set(newActivePanelKeys) {
+        // 更新组件内部的折叠状态
+        this.currentActivePanelKeys = newActivePanelKeys;
+      },
+      immediate: true
     },
-  },
+  }
+  ,
   methods: {
     // 获取默认展开的面板项的key值
     getOpenKeys(data) {
@@ -72,26 +80,37 @@ export default {
         }
       });
       return openKeys;
-    },
+    }
+    ,
     async handleCollapseChange(activeKeys) {
       this.currentActiveKeys = activeKeys;
       // 遍历contents中的每一项，并设置isCollapsed字段
       await this.contents.forEach(item => {
         let isCollapsed = !activeKeys.includes(String(item.id));
-        if (isCollapsed == null) {
-          isCollapsed = false;
-        }
         console.log("activeKeys:" + activeKeys + " item.id:" + item.id);
         item.isCollapsed = isCollapsed;
         console.log("forEach id:" + item.id + " " + isCollapsed);
         // 发送自定义事件，通知父组件更新contents数据的isCollapsed字段
-        this.$emit('update-collapse', item.id,isCollapsed);
+        this.$emit('update-collapse', item.id, isCollapsed);
         //this.$emit('update-collapse', {id:item.id, isCollapsed:isCollapsed});
       });
       this.$emit('update-collapse-keys', {});
     },
 
   },
+  computed:{
+    // 监听组件内部的折叠状态变化
+    dcurrentActivePanelKeys:{
+      get() {
+        return this.currentActiveKeys;
+      },
+      set(newActivePanelKeys) {
+        // 通过$emit事件通知父组件折叠状态的变化
+        this.$emit('update:activePanelKeys', newActivePanelKeys);
+      },
+      immediate: true
+    }
+  }
 }
 </script>
 

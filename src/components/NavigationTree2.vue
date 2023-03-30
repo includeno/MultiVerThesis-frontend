@@ -38,7 +38,9 @@ export default {
       // 处理树节点选中事件，可以实现快速定位功能
       // 实现导航栏选中事件的处理逻辑，例如快速定位
       // selectedKeys为选中节点的key，selectedNodes为选中节点信息
-      this.$emit('update-select',selectedNodes);
+      if(selectedNodes.length>0){
+        this.$emit('update-select',selectedNodes[0].id);
+      }
     },
   }
 };

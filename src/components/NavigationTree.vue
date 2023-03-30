@@ -36,7 +36,17 @@ export default {
     onSelect(selectedKeys, { selectedNodes }) {
       console.log('选中节点', selectedKeys, selectedNodes);
       // 处理树节点选中事件，可以实现快速定位功能
-    }
+      // 实现导航栏选中事件的处理逻辑，例如快速定位
+      // selectedKeys为选中节点的key，selectedNodes为选中节点信息
+      if (selectedNodes.length > 0) {
+        const targetId = selectedNodes[0].id; // 获取选中节点的ID
+        console.log("targetId:"+targetId);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    },
   }
 };
 </script>

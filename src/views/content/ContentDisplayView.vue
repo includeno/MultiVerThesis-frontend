@@ -215,12 +215,28 @@ export default {
       // selectedKeys为选中节点的key，selectedNodes为选中节点信息
       if (selectedNodes.length > 0) {
         const targetId = selectedNodes[0].id; // 获取选中节点的ID
-        this.setCollapseStatus(targetId, false);
-        const targetElement = document.getElementById(targetId);
-        if (targetElement) {
-          targetElement.scrollIntoView({ behavior: 'smooth' });
+        const targetItem = this.findItemById(this.contents, targetId); // 查找与选中节点对应的数据项
+        if (targetItem && targetItem.type === 'section') {
+          targetItem.isCollapsed = !targetItem.isCollapsed; // 切换折叠状态
+          // 重新计算展开状态的面板项的key值
+          this.activePanelKeys = this.getActivePanelKeysFromData(this.contents);
         }
       }
+    },
+    findItemById(data, targetId) {
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        if (item.id === targetId) {
+          return item;
+        }
+        if (item.contents && item.contents.length > 0) {
+          const foundItem = this.findItemById(item.contents, targetId);
+          if (foundItem) {
+            return foundItem;
+          }
+        }
+      }
+      return null; // 如果未找到目标项，返回null
     },
     addIsCollapsedProperty(data, isCollapsed) {
       // 遍历数据中的每个元素

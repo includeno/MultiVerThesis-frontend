@@ -27,6 +27,8 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 ```
 antd
 
+yarn add ant-design-vue
+
 https://antdv.com/components/overview 3.2.16
 
 vuedraggable

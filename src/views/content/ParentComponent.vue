@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="openPath(['1','2','4'])">Open Chapter 1 > Section 1.1</button>
+    <button @click="openPath(['1','2'])">Open Chapter 1 > Section 1.1</button>
     <ContentDisplay ref="contentDisplay" :sections="sections" v-model:activeKeys="syncedActiveKeys" />
   </div>
 </template>
