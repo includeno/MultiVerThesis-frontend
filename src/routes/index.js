@@ -7,7 +7,7 @@ let routes = [
         component: () => import("@/components/ContentCollapse5.vue"),
     },
     {
-        path: "/",
+        path: "/TrelloProjectSelector",
         name: "Home",
         component: () => import("@/views/TrelloProjectSelector.vue"),
     },

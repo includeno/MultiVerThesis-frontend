@@ -6,7 +6,11 @@
     </div>
     <!-- 右侧折叠面板内容区 -->
     <div class="content">
-      <ContentCollapse :active-keys="activeKeys" :sections="data"></ContentCollapse>
+      <ContentCollapse
+          :active-keys="activeKeys" :sections="data"
+          @paragraph-input-submitted="handleParagraphInputSubmitted"
+          @section-input-submitted="handleSectionInputSubmitted"
+      ></ContentCollapse>
     </div>
   </div>
 </template>
@@ -18,6 +22,9 @@ import axios from 'axios';
 
 export default {
   components: {ContentCollapse, NavigationTree},
+  props: {
+    uuid: String,//project uuid
+  },
   data() {
     return {
       activeKeys: [], // 响应式数据，存储展开的 Panel 的 ID
@@ -65,7 +72,7 @@ export default {
       this.activeKeys = nextKeys;
       console.log("CollapseExpendDemoV4.vue activeKey:" + this.activeKeys);
       for (let key of nextKeys) {
-        this.$nextTick( () => {
+        this.$nextTick(() => {
           const el = document.getElementById(key);
           console.log("$nextTick key" + key);
           console.log("$nextTick el" + el);
@@ -100,6 +107,7 @@ export default {
       return data;
     },
 
+    //https://juejin.cn/post/7098698020685873189
     traverseTree(data) {
       const path = [];
       const result = [];
@@ -133,9 +141,58 @@ export default {
       }
       // 回溯：移除最后添加的节点的id，回退到上一个节点
       path.pop();
+    },
+
+    handleParagraphInputSubmitted(data) {
+      // 处理传递过来的数据
+      console.log("receive data from ContentCollapse8:");
+      console.log(data);
+      // 在这里根据具体的业务逻辑对数据进行处理，例如更新 data 数组
+      // 由于代码仓库中不存在相应的更新数据的接口，这里仅演示如何传递数据
+      const parentId = data.id;
+      let paragraphData = {
+        title: data.title,
+        type: "paragraph",
+        content_type: "formula",
+        content: data.content,
+        id: 11111,
+        sort_index: 1.999
+      }
+      this.addElementToSection(this.data, parentId, paragraphData);
+    },
+    addElementToSection(data, sectionId, paragraphData) {
+      for (let item of data) {
+        if (item.id === sectionId) {
+          // 找到指定ID的章节，将新的段落添加到contents列表末尾
+          item.contents = item.contents || []; // 确保contents是一个数组
+          item.contents.push(paragraphData);
+          return true; // 成功添加，返回true
+        }
+        // 如果当前章节有子章节，递归查找
+        if (item.contents && item.contents.length > 0) {
+          if (this.addElementToSection(item.contents, sectionId, paragraphData)) {
+            return true; // 在子章节中成功添加，返回true
+          }
+        }
+      }
+      return false; // 没有找到指定ID的章节，返回false
+    },
+    handleSectionInputSubmitted(data) {
+      // 处理传递过来的数据
+      console.log("receive data from ContentCollapse8:");
+      console.log(data);
+      const parentId = data.id;
+      let paragraphData = {
+        title: data.title,
+        type: "section",
+        content_type: "text",
+        content: data.content,
+        id: 11111,
+        sort_index: 1.999
+      }
+      this.addElementToSection(this.data, parentId, paragraphData);
     }
-  }
-  ,
+  },
 }
 </script>
 

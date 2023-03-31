@@ -3,10 +3,12 @@
     <div class="modal-content">
       <h3>添加新节</h3>
       <label>标题：</label>
-      <input v-model="inputTitle" type="text" />
+      <a-input v-model:value="inputTitle" type="text"/>
+      <label>内容：</label>
+      <a-input v-model:value="inputContent" type="text"/>
       <div class="buttons">
-        <button @click="submitData">提交</button>
-        <button @click="closeDialog">取消</button>
+        <a-button @click="submitData">提交</a-button>
+        <a-button @click="closeDialog">取消</a-button>
       </div>
     </div>
   </div>
@@ -14,27 +16,43 @@
 
 <script>
 export default {
-  name:"InputSectionDialog",
+  name: "InputSectionDialog",
   props: {
     showDialog: Boolean,
+    parentId: String,
   },
   data() {
     return {
       inputTitle: '',
+      inputContent: '',
     };
   },
   methods: {
     submitData() {
       // 触发自定义事件，将数据传递给父组件
-      this.$emit('submit-section-input', { title: this.inputTitle });
+      console.log(this.title);
+      console.log(this.content);
+      this.$emit('submit-section-input', {title: this.title, content: this.content, id: this.parentId});
       // 清空输入框
       this.inputTitle = '';
+      this.inputContent = '';
     },
     closeDialog() {
       // 触发自定义事件，通知父组件关闭对话框
       this.$emit('close-section-dialog');
+      // 清空输入框
+      this.inputTitle = '';
+      this.inputContent = '';
     },
   },
+  computed: {
+    title() {
+      return this.inputTitle;
+    },
+    content() {
+      return this.inputContent;
+    }
+  }
 };
 </script>
 <style scoped>

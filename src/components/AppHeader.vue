@@ -3,31 +3,61 @@
     <!-- header 的其他内容，例如 logo、导航菜单等 -->
     <div class="header-logo">
       <!-- logo 或应用名称 -->
-      My Application
+      <router-link :to="{name:'Home'}">网页写作工具</router-link>
     </div>
     <div class="header-nav">
       <!-- 导航菜单 -->
       <a-menu mode="horizontal">
-        <a-menu-item key="1">首页</a-menu-item>
-        <a-menu-item key="2">文档</a-menu-item>
-        <a-menu-item key="3">设置</a-menu-item>
+        <a-menu-item key="1">
+          <OrganizationDropdown></OrganizationDropdown>
+        </a-menu-item>
+        <a-menu-item key="2">
+          <ProjectDropdown></ProjectDropdown>
+        </a-menu-item>
+        <a-menu-item key="3">
+          <CreateDropdown></CreateDropdown>
+        </a-menu-item>
       </a-menu>
     </div>
-
-    <!-- 引入项目选择组件 -->
-    <div class="header-project-select">
-      <ProjectSelect />
+    <div class="user">
+      <!-- 情景 1：远程加载中 -->
+      <span v-if="isLogining">loading...</span>
+      <!-- 情景 2：当前有登录用户 -->
+      <template v-else-if="loginUser">
+        <HeaderAvatar class="avatar"/>
+      </template>
+      <template v-else>
+            <span class="avatar">
+              <router-link :to="{name:'Login'}">登录</router-link>
+            </span>
+      </template>
     </div>
+
   </div>
 </template>
 
 <script>
 // 导入项目选择组件
-import ProjectSelect from '@/components/ProjectSelect.vue'
+import CreateDropdown from '@/components/CreateDropdown'
+import OrganizationDropdown from "@/components/OrganizationDropdown";
+import ProjectDropdown from "@/components/ProjectDropdown";
+import HeaderAvatar from "@/components/HeaderAvatar";
 
 export default {
   components: {
-    ProjectSelect
+    OrganizationDropdown,
+    ProjectDropdown,
+    CreateDropdown,
+    HeaderAvatar,
+  },
+  computed:{
+    loginUser() {
+      return this.$store.getters["user/getUserInfo"]
+    },
+    isLogining() {
+      console.log("read isLoading!" + JSON.stringify(this.$store.state.user.isLoading));
+      return this.$store.state.user.isLoading
+    },
   }
 }
 </script>

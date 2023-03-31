@@ -11,6 +11,7 @@
         <div>
           <a-button @click="addParagraph(section)">添加段落Paragraph</a-button>
           <InputParagraphDialog
+              :parent-id="paragraphInputDialogPara"
               :show-dialog="showParagraphInputDialog"
               @submit-paragraph-input="handleParagraphInputSubmit"
               @close-paragraph-dialog="closeParagraphInputDialog"
@@ -19,18 +20,18 @@
 
           <a-button @click="addSection(section)">添加子章节Section</a-button>
           <InputSectionDialog
+              :parent-id="sectionInputDialogPara"
               :show-dialog="showSectionInputDialog"
               @submit-section-input="handleSectionInputSubmit"
               @close-section-dialog="closeSectionInputDialog"
           ></InputSectionDialog>
           <a-button @click="editItem(section)">编辑</a-button>
         </div>
-        <draggable v-model="section.contents" :group="{ name: 'nested' }" itemKey="id">
+        <draggable v-model="section.contents" :group="{ name: 'nested' }" itemKey="id" draggable=".item">
           <template #item="{element}">
             <div class="bordered-card">
               <!-- 添加拖拽把手 -->
               <div class="handle">☰</div>
-
               <!-- 编辑按钮 -->
               <div class="card-extra">
                 <a-button @click="editItem(element.id)">编辑</a-button>
@@ -38,13 +39,18 @@
 
               <template v-if="element.type === 'section'">
                 <!-- 递归渲染子章节 -->
-                <ContentDisplay :sections="[element]" :activeKeys="syncedActiveKeys"/>
+                <ContentDisplay
+                    :sections="[element]"
+                    :activeKeys="syncedActiveKeys"
+                    @paragraph-input-submitted="$emit('paragraph-input-submitted', $event)"
+                    @section-input-submitted="$emit('section-input-submitted', $event)"
+                />
               </template>
               <template v-else>
                 <!-- 根据内容类型展示不同内容，这里以文本、公式和表格为例 -->
-                <p :id="element.id" v-if="element.content_type === 'text'">{{ element.content }}</p>
-                <p :id="element.id" v-else-if="element.content_type === 'formula'">公式：{{ element.content }}</p>
-                <p :id="element.id" v-else-if="element.content_type === 'table'">表格：{{ element.content }}</p>
+                <p class="item" :id="element.id" v-if="element.content_type === 'text'">{{ element.content }}</p>
+                <p class="item" :id="element.id" v-else-if="element.content_type === 'formula'">公式：{{element.content }}</p>
+                <p class="item" :id="element.id" v-else-if="element.content_type === 'table'">表格：{{element.content }}</p>
               </template>
             </div>
           </template>
@@ -82,11 +88,14 @@ export default {
   data() {
     return {
       currentActiveKeys: this.activeKeys,
+
       showSectionInputDialog: false,
+      sectionInputDialogPara: null,
+
       showParagraphInputDialog: false,
+      paragraphInputDialogPara: null,
     };
   },
-
   mounted() {
 
   },
@@ -95,11 +104,13 @@ export default {
       // 添加段落的逻辑
       console.log('添加段落到章节', item);
       this.showParagraphInputDialog = true;
+      this.paragraphInputDialogPara = item.id;
     },
     addSection(item) {
       // 添加子章节的逻辑
       console.log('添加子章节到章节', item)
       this.showSectionInputDialog = true;
+      this.sectionInputDialogPara = item.id;
     },
     editItem(item) {
       // 编辑内容项的逻辑
@@ -109,6 +120,7 @@ export default {
       // 处理提交的数据
       console.log("receive data:")
       console.log(data);
+      this.$emit('section-input-submitted', data);
       // 关闭模态对话框
       this.showSectionInputDialog = false;
     },
@@ -119,10 +131,11 @@ export default {
       // 处理提交的数据
       console.log("receive data:")
       console.log(data);
+      this.$emit('paragraph-input-submitted', data);
       // 关闭模态对话框
       this.showParagraphInputDialog = false;
     },
-    closeParagraphInputDialog(){
+    closeParagraphInputDialog() {
       this.showParagraphInputDialog = false;
     }
   },

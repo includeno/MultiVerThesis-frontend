@@ -40,6 +40,10 @@ vue router
 
 yarn add vue-router@4
 
+vuex
+
+yarn add vuex@next --save
+
 axios
 
 yarn add axios

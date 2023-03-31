@@ -1,6 +1,7 @@
 <template>
 <!--  <img alt="Vue logo" src="./assets/logo.png">-->
   <div id="app">
+    <AppHeader></AppHeader>
     <router-view></router-view>
   </div>
 </template>
@@ -8,9 +9,11 @@
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
 
+import AppHeader from "@/components/AppHeader";
 export default {
   name: 'App',
   components: {
+    AppHeader
 
   }
 }
