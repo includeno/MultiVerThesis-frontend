@@ -34,6 +34,16 @@ export function updateProject(projectRequest) {
     });
 }
 
+// 获取项目详细信息 API 请求
+export function getProjectDetail(uuid) {
+    return request({
+        url: '/project/detail',
+        method: 'get',
+        params: {
+            uuid,
+        },
+    });
+}
 
 // 获取项目列表 API 请求
 export function gethProjectsByUserUuid(userUuid) {

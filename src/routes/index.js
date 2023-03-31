@@ -83,6 +83,11 @@ let routes = [
         name: "CollapseExpendDemoV4",
         component: () => import("@/views/demo/CollapseExpendDemoV4.vue"),//✅正常工作
     },
+    {
+        path: "/project/:uuid",
+        name: "project",
+        component: () => import("@/views/ProjectView.vue"),//
+    },
 ]
 
 const router = createRouter({

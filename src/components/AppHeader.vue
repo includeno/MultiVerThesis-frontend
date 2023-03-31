@@ -64,6 +64,7 @@ export default {
 
 <style scoped>
 .app-header {
+  height: 60px;
   position: fixed;
   z-index: 100;
   left: 0;

@@ -10,10 +10,12 @@
           <a-menu-item
               v-for="project in projects"
               :key="project.projectId"
-              @click="handleProjectClick(project.projectId)"
+              @click="handleProjectClick(project.uuid)"
           >
-            {{ project.projectName }}
-            {{ project.uuid }}
+            <router-link :to="{ name: 'project', params: { uuid: project.uuid }}">
+              {{ project.projectName }}
+              {{ project.uuid }}
+            </router-link>
           </a-menu-item>
         </a-menu>
       </template>
@@ -69,9 +71,9 @@ export default {
         console.error(error);
       });
     },
-    handleProjectClick(projId) {
+    handleProjectClick(uuid) {
       // 在这里处理项目点击事件，例如导航到项目详情页面
-      console.log('点击的项目ID:', projId);
+      console.log('点击的项目ID:', uuid);
     },
   },
 };

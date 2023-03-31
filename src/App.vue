@@ -2,7 +2,7 @@
 <!--  <img alt="Vue logo" src="./assets/logo.png">-->
   <div id="app">
     <AppHeader></AppHeader>
-    <router-view></router-view>
+    <router-view style="margin-top: 65px"></router-view>
   </div>
 </template>
 
@@ -14,7 +14,6 @@ export default {
   name: 'App',
   components: {
     AppHeader
-
   }
 }
 </script>
