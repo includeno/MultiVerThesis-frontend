@@ -84,6 +84,11 @@ let routes = [
         component: () => import("@/views/demo/CollapseExpendDemoV4.vue"),//✅正常工作
     },
     {
+        path: "/ViewList",
+        name: "ViewList",
+        component: () => import("@/views/demo/ViewList.vue"),//✅正常工作
+    },
+    {
         path: "/project/:uuid",
         name: "project",
         component: () => import("@/views/ProjectView.vue"),//

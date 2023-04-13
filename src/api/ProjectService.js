@@ -45,6 +45,30 @@ export function getProjectDetail(uuid) {
     });
 }
 
+// 获取小节 API 请求
+export function download(uuid) {
+    return request({
+        url: '/project/download',
+        method: 'get',
+        params: {
+            uuid,
+        },
+        responseType: 'blob', // 告诉axios返回类型是blob
+    });
+}
+
+//
+export function downloadTest(uuid) {
+    return request({
+        url: '/project/download',
+        method: 'get',
+        params: {
+            uuid,
+        },
+        responseType: 'blob', // 告诉axios返回类型是blob
+    });
+}
+
 // 获取项目列表 API 请求
 export function gethProjectsByUserUuid(userUuid) {
     return request({

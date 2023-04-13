@@ -1,7 +1,7 @@
 <template>
   <div class="modal-overlay" v-if="showDialog">
     <div class="modal-content">
-      <h3>添加新节</h3>
+      <h3>编辑章节</h3>
       <label>标题：</label>
       <a-input v-model:value="inputTitle" type="text"/>
       <label>内容：</label>
@@ -16,10 +16,10 @@
 
 <script>
 export default {
-  name: "InputSectionDialog",
+  name: "EditSectionDialog",
   props: {
     showDialog: Boolean,
-    parentId: String,
+    uuid: String,
     data:Object,//{'title':'','content':''}
   },
   data() {
@@ -39,14 +39,14 @@ export default {
       // 触发自定义事件，将数据传递给父组件
       console.log(this.title);
       console.log(this.content);
-      this.$emit('submit-section-input', {title: this.title, content: this.content, id: this.parentId});
+      this.$emit('submit-section-edit-input', {title: this.title, content: this.content, id: this.uuid});
       // 清空输入框
       this.inputTitle = '';
       this.inputContent = '';
     },
     closeDialog() {
       // 触发自定义事件，通知父组件关闭对话框
-      this.$emit('close-section-dialog');
+      this.$emit('close-section-edit-dialog');
       // 清空输入框
       this.inputTitle = '';
       this.inputContent = '';

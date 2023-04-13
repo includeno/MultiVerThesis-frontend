@@ -1,24 +1,58 @@
 <template>
-  <div class="container">
-    <!-- 左侧导航栏 -->
-    <div class="navigation">
-      <navigation-tree :data0="data" @update-select="expandAndScrollTo"></navigation-tree>
+  <div>
+    <div class="project">
+      <label>标题：{{ project.projectName }}</label>
+      <div>
+        <!-- 下拉菜单展示项目列表 -->
+        <a-select
+            v-model="selectedShowProjectWay"
+            placeholder="项目展示方式"
+            @change="handleShowProjectWayChange"
+            :defaultValue="selectedShowProjectWay"
+        >
+          <a-select-option
+              v-for="way in projectWay"
+              :key="way.key"
+              :value="way.value"
+          >
+            {{ way.key }}
+          </a-select-option>
+        </a-select>
+      </div>
     </div>
-    <!-- 右侧折叠面板内容区 -->
-    <div class="content">
-      <ContentCollapse
-          :active-keys="activeKeys" :sections="data"
-          @paragraph-input-submitted="handleParagraphInputSubmitted"
-          @section-input-submitted="handleSectionInputSubmitted"
-      ></ContentCollapse>
+    <div class="toolbar">
+      <a-button-group>
+        <a-button type="primary">添加章节</a-button>
+        <a-button>保存草稿</a-button>
+        <a-button type="primary" @click="downloadFile">下载文件</a-button>
+      </a-button-group>
+
+    </div>
+    <a-divider></a-divider>
+
+    <div v-show="data.length>0" class="container">
+      <!-- 左侧导航栏 -->
+      <div class="navigation">
+        <navigation-tree :data0="data" @update-select="expandAndScrollTo"></navigation-tree>
+      </div>
+      <!-- 右侧折叠面板内容区 -->
+      <div class="content">
+        <ContentCollapse
+            :active-keys="activeKeys" :sections="data"
+            @paragraph-input-submitted="handleParagraphInputSubmitted"
+            @section-input-submitted="handleSectionInputSubmitted"
+        ></ContentCollapse>
+      </div>
     </div>
   </div>
+
 </template>
 
 <script>
 import NavigationTree from "@/components/NavigationTree2";
 import ContentCollapse from "@/components/ContentCollapse8";
-import {getProjectDetail} from "@/api/ProjectService";
+import {download, getProjectDetail} from "@/api/ProjectService";
+import {addSection} from "@/api/SectionService";
 
 export default {
   components: {ContentCollapse, NavigationTree},
@@ -26,6 +60,8 @@ export default {
     return {
       projectUuid: this.$route.params.uuid,
       project: {},
+      selectedShowProjectWay: 1,
+      projectWay: [{key: '全文', value: 1}, {key: '章节', value: 2}],
       activeKeys: [], // 响应式数据，存储展开的 Panel 的 ID
       data: [],
       index: 1,
@@ -41,12 +77,26 @@ export default {
       immediate: true, // 立即执行一次
       handler(newId, oldId) {
         if (newId !== oldId) {
-          this.projectUuid=this.$route.params.uuid;
+          this.projectUuid = this.$route.params.uuid;
           console.log("route.params.uuid projectUuid:" + this.projectUuid);
           this.fetchData();
         }
       }
     },
+  },
+  computed: {
+    // 生成一个唯一的 ID
+    global_data: {
+      get() {
+        if (this.selectedShowProjectWay === 1) {
+          return this.data;
+        }
+        return this.data.filter(item => item.type == 'section');
+      },
+      set(value) {
+        this.data = value;
+      }
+    }
   },
   methods: {
     fetchData() {
@@ -153,13 +203,15 @@ export default {
       path.pop();
     },
 
-    handleParagraphInputSubmitted(data) {
+    async handleParagraphInputSubmitted(data) {
       // 处理传递过来的数据
       console.log("receive data from ContentCollapse8:");
       console.log(data);
       // 在这里根据具体的业务逻辑对数据进行处理，例如更新 data 数组
       // 由于代码仓库中不存在相应的更新数据的接口，这里仅演示如何传递数据
-      const parentId = data.id;
+      //const parentId = String(data.id)
+      const parent = this.data.find(item => item.id == data.id);
+      console.log("parent:" + JSON.stringify(parent));
       let paragraphData = {
         title: data.title,
         type: "paragraph",
@@ -168,7 +220,8 @@ export default {
         id: 11111,
         sort_index: 1.999
       }
-      this.addElementToSection(this.data, parentId, paragraphData);
+
+      this.addElementToSection(this.data, parent.id, paragraphData);
     },
     addElementToSection(data, sectionId, paragraphData) {
       for (let item of data) {
@@ -187,26 +240,48 @@ export default {
       }
       return false; // 没有找到指定ID的章节，返回false
     },
-    handleSectionInputSubmitted(data) {
+    async handleSectionInputSubmitted(data) {
       // 处理传递过来的数据
       console.log("receive data from ContentCollapse8:");
       console.log(data);
-      const parentId = data.id;
-      let paragraphData = {
+      const parent = this.data.find(item => item.id == data.id);
+      console.log("parent:" + JSON.stringify(parent));
+      let sectionData = {
         title: data.title,
-        type: "section",
-        content_type: "text",
         content: data.content,
-        id: 11111,
-        sort_index: 1.999
       }
-      this.addElementToSection(this.data, parentId, paragraphData);
-    }
+      console.log("sectionData:" + JSON.stringify(sectionData));
+      let response = await addSection(data.title, data.content, parent.uuid, this.$route.params.uuid);
+      console.log("addSection response:" + JSON.stringify(response));
+
+      this.addElementToSection(this.data, parent.id, sectionData);
+    },
+    async downloadFile() {
+      let response = await download(this.$route.params.uuid);
+      const blob = new Blob([response.data], {type: response.headers['content-type']}); // 构造Blob对象
+      const url = window.URL.createObjectURL(blob); // 创建URL对象
+      const link = document.createElement('a'); // 创建a标签
+      link.href = url;
+      //link.setAttribute('download', "download.docx"); // 设置下载文件名
+      document.body.appendChild(link); // 添加到DOM中
+      link.click(); // 触发点击事件
+      document.body.removeChild(link); // 移除DOM
+    },
+    handleShowProjectWayChange(value) {
+      this.selectedShowProjectWay = value;
+    },
   },
 }
 </script>
 
 <style scoped>
+.project {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .container {
   display: flex;
 }
@@ -217,5 +292,9 @@ export default {
 
 .content {
   flex: 1;
+}
+
+.toolbar {
+  text-align: center;
 }
 </style>

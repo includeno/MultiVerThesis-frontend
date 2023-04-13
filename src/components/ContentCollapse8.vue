@@ -4,8 +4,8 @@
       <a-collapse-panel
           v-for="section in sections"
           :key="section.id"
-          :header="section.title"
-          :id="section.id"
+          :header="section.level"
+          :id="section.uuid"
       >
 
         <div>
@@ -25,7 +25,13 @@
               @submit-section-input="handleSectionInputSubmit"
               @close-section-dialog="closeSectionInputDialog"
           ></InputSectionDialog>
-          <a-button @click="editItem(section)">编辑</a-button>
+          <a-button @click="editItem(section)">编辑章节</a-button>
+          <EditSectionDialog
+              :uuid="section.uuid"
+              :show-dialog="showSectionEditDialog"
+              @submit-section-input="handleSectionInputSubmit"
+              @close-section-dialog="closeSectionInputDialog"
+          ></EditSectionDialog>
         </div>
         <draggable v-model="section.contents" :group="{ name: 'nested' }" itemKey="id" draggable=".item">
           <template #item="{element}">
@@ -34,7 +40,7 @@
               <div class="handle">☰</div>
               <!-- 编辑按钮 -->
               <div class="card-extra">
-                <a-button @click="editItem(element.id)">编辑</a-button>
+                <a-button @click="editItem(element.id)">编辑段落</a-button>
               </div>
 
               <template v-if="element.type === 'section'">
@@ -94,6 +100,8 @@ export default {
 
       showParagraphInputDialog: false,
       paragraphInputDialogPara: null,
+
+      showSectionEditDialog: false,
     };
   },
   mounted() {

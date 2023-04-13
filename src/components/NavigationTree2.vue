@@ -1,7 +1,7 @@
 <template>
   <a-tree
       :tree-data="treeData"
-      :fieldNames="{ title: 'title', key: 'id', children: 'contents' }"
+      :fieldNames="{ title: 'title', key: 'uuid', children: 'contents' }"
       @select="onSelect"
   />
 </template>
